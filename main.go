@@ -10,6 +10,7 @@ import (
 func main() {
 	godotenv.Load()
 	router := gin.Default()
+
 	router.Run("localhost:" + os.Getenv("PORT"))
 
 }
