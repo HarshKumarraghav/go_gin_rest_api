@@ -4,6 +4,7 @@ import (
 	"context"
 	"gogin-restapi/api/routes"
 	"gogin-restapi/pkg/configs"
+	"gogin-restapi/pkg/data"
 	"log"
 	"os"
 
@@ -14,16 +15,16 @@ import (
 )
 
 func main() {
+	app := gin.Default()
 	godotenv.Load()
-	router := gin.Default()
 	config := configs.FromEnv()
 
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.MongoURI))
 	if err != nil {
 		log.Panic(err)
 	}
-	// db := client.Database("gogin_restapi")
-	routes.CreateRoutes(router)
-	router.Run("localhost:" + os.Getenv("PORT"))
-
+	db := client.Database("gogin_restapi")
+	dataRepo := data.NewRepo(db)
+	routes.CreateRoutes(app, dataRepo.(*data.Repo))
+	app.Run("localhost:" + os.Getenv("PORT"))
 }
